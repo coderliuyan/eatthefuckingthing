@@ -22,14 +22,15 @@ public class PlayerActionManager : MonoBehaviour {
 	void OnCollisionEnter2D(Collision2D coll) {
 	  Debug.Log ("-------开始碰撞------------");
 	  Debug.Log(coll.gameObject.name);
+	
 	}
 
 	void OnTriggerEnter2D(Collider2D collider) {
 	  Debug.Log("开始接触");
 	  Debug.Log (collider.name);
-		if (collider.name == "npc1") {
+		if (collider.name == "NPC1") {
 			Debug.Log ("你要去森林吃屎吗");
-
+			collider.gameObject.GetComponent<NPC> ().closePlayer = true;
 		}
 
 		if (collider.name == "npc2") {
@@ -38,8 +39,12 @@ public class PlayerActionManager : MonoBehaviour {
 		}
 	}
 
+	void OnTriggerExit2D(Collider2D collider){
+		collider.gameObject.GetComponent<NPC> ().closePlayer = false;
+	}
+
 	public void OnMove(Vector2 v){
-		Debug.Log (v);
+//		Debug.Log (v);
 		if (v.x > 0) {
 			GetComponent<Image> ().overrideSprite = playerMove [0];
 		} else if (v.x < 0) {
