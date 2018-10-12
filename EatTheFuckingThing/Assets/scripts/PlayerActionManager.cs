@@ -6,13 +6,12 @@ using UnityEngine.UI;
 
 public class PlayerActionManager : MonoBehaviour {
 
+	public Sprite[] playerMove;
 
-	Text msg ;
-//	GameObject msgParent;
+
 	// Use this for initialization
 	void Start () {
-		msg = GameObject.Find ("msgText").GetComponent<Text>();
-		msg.gameObject.SetActive (false);
+
 	}
 	
 	// Update is called once per frame
@@ -30,15 +29,25 @@ public class PlayerActionManager : MonoBehaviour {
 	  Debug.Log (collider.name);
 		if (collider.name == "npc1") {
 			Debug.Log ("你要去森林吃屎吗");
-			msg.gameObject.SetActive (true);
-			msg.text = "你要去森林吃屎吗";
 
 		}
 
 		if (collider.name == "npc2") {
 			Debug.Log ("你要去被恶龙吃了吗?");
-			msg.gameObject.SetActive (true);
-			msg.text = "你要去被恶龙吃了吗?";
+
+		}
+	}
+
+	public void OnMove(Vector2 v){
+		Debug.Log (v);
+		if (v.x > 0) {
+			GetComponent<Image> ().overrideSprite = playerMove [0];
+		} else if (v.x < 0) {
+			GetComponent<Image> ().overrideSprite = playerMove [1];
+		} else if (v.y < 0) {
+			GetComponent<Image> ().overrideSprite = playerMove [2];
+		} else {
+			GetComponent<Image> ().overrideSprite = playerMove [3];
 		}
 	}
 
