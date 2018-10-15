@@ -25,7 +25,7 @@ public class NPC : MonoBehaviour {
 
 	}
 	void AutoTalk(){
-		Debug.Log ("aaaaa");
+//		Debug.Log ("aaaaa");
 		if(!closePlayer)
 			StartCoroutine (AnimationMsg());
 	}
