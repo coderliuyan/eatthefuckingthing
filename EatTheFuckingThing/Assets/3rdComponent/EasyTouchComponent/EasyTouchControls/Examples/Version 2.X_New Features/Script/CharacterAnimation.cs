@@ -38,3 +38,8 @@ public class CharacterAnimation : MonoBehaviour {
 	}
 
 }
+
+
+
+
+

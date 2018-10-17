@@ -24,54 +24,58 @@ public class PlayerActionManager : MonoBehaviour {
 	public PlayerState playerState = PlayerState.idleForword;
 
 
-	// Use this for initialization
-	void Start () {
+    public static PlayerActionManager manager;
+
+    public GameObject closeNpc;
+
+    private void Awake()
+    {
+        if(manager == null)
+        {
+            manager = this;
+        }
+    }
+
+    // Use this for initialization
+    void Start () {
 		animator = GetComponent<Animator> ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
-//		if (ETCInput.GetAxis ("Horizontal") < 0) {
-////			Debug.Log ("hhhhhhhh");
-//			animator.SetInteger ("playerState", 7);
-//			playerState = PlayerState.right;
-//		} else if (ETCInput.GetAxis ("Horizontal") > 0) {
-//			animator.SetInteger ("playerState", 3);
-//		} else if (ETCInput.GetAxis ("Vertical") > 0) {
-//			animator.SetInteger ("playerState", 5);
-//		} else if (ETCInput.GetAxis ("Vertical") < 0) {
-//			animator.SetInteger ("playerState", 1);
-//		}
+
 	}
+
+    public void Talk()
+    {
+        if(closeNpc != null)
+        {
+            NPCPanel.npcManager.TalkToNPCWithGameObject(closeNpc);
+        }
+
+    }
 
 	void OnCollisionEnter2D(Collision2D coll) {
 	  Debug.Log ("-------开始碰撞------------");
 	  Debug.Log(coll.gameObject.name);
-	
 	}
 
-	void OnTriggerEnter2D(Collider2D collider) {
-	  Debug.Log("开始接触");
-	  Debug.Log (collider.name);
-		if (collider.name == "NPC1") {
-			Debug.Log ("你要去森林吃屎吗");
-			collider.gameObject.GetComponent<NPC> ().closePlayer = true;
-		}
-
-		if (collider.name == "npc2") {
-			Debug.Log ("你要去被恶龙吃了吗?");
-
-		}
+	void OnTriggerEnter2D(Collider2D col) 
+    {
+        Debug.Log("开始接触");
+        Debug.Log (col.name);
+        closeNpc = col.gameObject;
 	}
 
-	void OnTriggerExit2D(Collider2D collider){
-		collider.gameObject.GetComponent<NPC> ().closePlayer = false;
+	void OnTriggerExit2D(Collider2D col){
+       
+        closeNpc = null;
 	}
 
 	//移动的时候播放动画
 	public void OnMove(Vector2 v){
-		Debug.Log (v);
+		//Debug.Log (v);
 
 		if (v.x < 0  &&  Mathf.Abs(v.x) > Mathf.Abs(v.y)) {
 			animator.SetInteger("playerState",7);
