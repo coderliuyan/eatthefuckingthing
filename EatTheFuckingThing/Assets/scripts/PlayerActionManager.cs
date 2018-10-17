@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using DG.Tweening;
+using TMPro;
 
 public class PlayerActionManager : MonoBehaviour {
 
@@ -28,6 +29,15 @@ public class PlayerActionManager : MonoBehaviour {
 
     public GameObject closeNpc;
 
+    //提示框的相关部分
+    Transform Ctrl;
+    GameObject animationPanel;
+    string animationPanelPath = @"AnimationPanel";
+    string playerSliderPath = @"PlayerSlider";
+    Slider playerSlider;
+
+
+
     private void Awake()
     {
         if(manager == null)
@@ -39,6 +49,9 @@ public class PlayerActionManager : MonoBehaviour {
     // Use this for initialization
     void Start () {
 		animator = GetComponent<Animator> ();
+        Ctrl = GameObject.Find("Ctrl").transform;
+        animationPanel = Ctrl.Find(animationPanelPath).gameObject;
+        playerSlider = animationPanel.transform.Find(playerSliderPath).GetComponent<Slider>();
 	}
 	
 	// Update is called once per frame
@@ -65,8 +78,40 @@ public class PlayerActionManager : MonoBehaviour {
     {
         Debug.Log("开始接触");
         Debug.Log (col.name);
+
+        if(col.transform.parent.name == "door")
+        {
+
+
+            StartCoroutine(ChangeScene(col.gameObject));
+
+        }
+
         closeNpc = col.gameObject;
+
+
+
+
 	}
+
+    IEnumerator ChangeScene(GameObject col){
+        animationPanel.SetActive(true);
+        playerSlider.enabled = false;
+        while(playerSlider.value != 1f)
+        {
+            playerSlider.value += 0.1f;
+            yield return new WaitForSeconds(0.1f);
+        }
+
+
+        playerSlider.value = 0;
+        //yield return new WaitForSeconds(1.3f);
+        animationPanel.SetActive(false);
+        string doorPath = col.name + "Pos";
+        Transform tran = transform.parent.Find(doorPath);
+        transform.position = tran.position;
+    }
+
 
 	void OnTriggerExit2D(Collider2D col){
        
@@ -75,7 +120,6 @@ public class PlayerActionManager : MonoBehaviour {
 
 	//移动的时候播放动画
 	public void OnMove(Vector2 v){
-		//Debug.Log (v);
 
 		if (v.x < 0  &&  Mathf.Abs(v.x) > Mathf.Abs(v.y)) {
 			animator.SetInteger("playerState",7);
@@ -94,21 +138,10 @@ public class PlayerActionManager : MonoBehaviour {
 	}
 
 	//停止移动的时候停止动画
-	public void OnMoveEnd(){
-//		if (animator.GetInteger ("playerState") == 1) {
-//			animator.SetInteger ("playerState", 0);
-//			playerState = PlayerState.idleForword;
-//		}
-//
-//		if (animator.GetInteger ("playerState") == 3) {
-//			animator.SetInteger ("playerState", 2);
-//			playerState = PlayerState.idleLeft;
-//		}
+	public void OnMoveEnd()
+    {
 		int current = animator.GetInteger("playerState");
 		animator.SetInteger ("playerState",current - 1);
-
-
-
 	}
 
 
