@@ -30,77 +30,116 @@ public class EnemyPathFinding : MonoBehaviour {
 
     public Transform playertrans;
 
+    [HideInInspector]
+    public int enemyAttack = 10;
+
 	// Use this for initialization
     void Start () {
-        coroutine = StartCoroutine(enemyMove());
+        coroutine = StartCoroutine(enemyAction());
         playertrans = GameObject.FindWithTag("Player").transform;
     }
 
 
-    IEnumerator  enemyMove(int rx = 0,int ry = 0)
+
+
+
+    IEnumerator enemyAction(int rx = 0,int ry = 0)
     {
+        //先让敌人ai 停下来
         GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-        yield return new WaitForSeconds(1f);
 
-        //如果状态时是 idle 随机位置移动
-        if (enemyState == EnemyState.idle)
+
+        switch (enemyState)
         {
-            enemyState = EnemyState.walk;
-            if (rx == 0){
-                List<int> xlist = new List<int>();
-                xlist.Add(Random.Range(-1 * max, -1 * min));
-                xlist.Add(Random.Range(min, max));
-                int randomIndex =  Random.Range(0, 2);
-                rx = xlist[randomIndex];
-            }
+
+            case EnemyState.idle:
+                {
+                    if (rx == 0)
+                    {
+                        List<int> xlist = new List<int>();
+                        xlist.Add(Random.Range(-1 * max, -1 * min));
+                        xlist.Add(Random.Range(min, max));
+                        int randomIndex = Random.Range(0, 2);
+                        rx = xlist[randomIndex];
+                    }
 
 
-                 
-            if(ry == 0){
-                List<int> ylist = new List<int>();
-                ylist.Add(Random.Range(-1 * max, -1 * min));
-                ylist.Add(Random.Range(min, max));
-                ry = ylist[Random.Range(0, 2)];
-            }
 
-            Vector3 v3 = new Vector3(transform.position.x - rx, transform.position.y - ry, transform.position.z);
-            GetComponent<Rigidbody2D>().AddForce((v3-transform.position ).normalized* forceEnergy);
-            yield return new WaitForSeconds(1f);
-            enemyState = EnemyState.idle;
-            coroutine =  StartCoroutine(enemyMove());
-            //tween = transform.DOMove(v3, 1.3f).SetEase(Ease.Linear);
-            //tween.onComplete = delegate
-            //{
-            //    enemyState = EnemyState.idle;
-            //    StartCoroutine(enemyMove());
-            //};
+                    if (ry == 0)
+                    {
+                        List<int> ylist = new List<int>();
+                        ylist.Add(Random.Range(-1 * max, -1 * min));
+                        ylist.Add(Random.Range(min, max));
+                        ry = ylist[Random.Range(0, 2)];
+                    }
+
+                    Vector3 v3 = new Vector3(transform.position.x - rx, transform.position.y - ry, transform.position.z);
+                    GetComponent<Rigidbody2D>().AddForce((v3 - transform.position).normalized * forceEnergy);
+                    yield return new WaitForSeconds(1f);
+
+                    coroutine = StartCoroutine(enemyAction());
+
+                }
+                break;
+            case EnemyState.zhuiji:
+                {
+                    GetComponent<Rigidbody2D>().AddForce((playertrans.position - transform.position).normalized * forceEnergy);
+
+                    distance = Mathf.Abs((playertrans.position - transform.position).magnitude);
+                    if (distance < 70)
+                    {
+                        //小于这个距离 开始攻击
+                        AttackHero();
+                    }
+
+                    yield return new WaitForSeconds(1f);
+
+                    coroutine = StartCoroutine(enemyAction());
+                }
+                break;
+            case EnemyState.attack:
+                {
+                    //开始攻击
+                    Debug.Log("开始攻击");
+                    distance = Mathf.Abs((playertrans.position - transform.position).magnitude);
+                    if (distance <= 70)
+                    {
+
+                        if(PlayerActionManager.manager.hp >= enemyAttack)
+                        {
+                            PlayerActionManager.manager.hp -= enemyAttack;
+
+                        }
+                        else{
+                            PlayerActionManager.manager.hp = 0;
+                            //玩家 翘辫子
+                        }
+                    }
+                    StatePanel.ChangeXuetiaoValue();
+                    Debug.Log("玩家血量为"  + PlayerActionManager.manager.hp);
+                  
+                    yield return new WaitForSeconds(1f);
+                    enemyState = EnemyState.zhuiji;
+                    coroutine = StartCoroutine(enemyAction());
+                }
+                break;
+
         }
 
-        //如果状态是 zhuiji  向player移动
-        if(enemyState == EnemyState.zhuiji)
-        {
-            //enemyState = EnemyState.walk;
-            GetComponent<Rigidbody2D>().AddForce((playertrans.position - transform.position).normalized * forceEnergy);
-            yield return new WaitForSeconds(1f);
-            //enemyState = EnemyState.idle;
-            coroutine = StartCoroutine(enemyMove());
-
-
-            //tween = transform.DOMove(playertrans.position, 1.3f).SetEase(Ease.Linear);
-            //tween.onComplete = delegate
-            //{
-            //    enemyState = EnemyState.zhuiji;
-            //    StartCoroutine(enemyMove());
-            //};
-
-        }
-
-        
     }
 
+    private void AttackHero(){
+        StopCoroutine(coroutine);
+        Debug.Log("distance = " + distance);
+        enemyState = EnemyState.attack;
+        coroutine = StartCoroutine(enemyAction());
+    }
+
+    [Header("与玩家之间的距离")]
+    public float distance;
 	// Update is called once per frame
 	void Update () {
-		
+       
 	}
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -112,7 +151,7 @@ public class EnemyPathFinding : MonoBehaviour {
             Debug.Log("in !!!!!!!!");
             StopCoroutine(coroutine); 
             enemyState = EnemyState.zhuiji;
-            coroutine = StartCoroutine(enemyMove());
+            coroutine = StartCoroutine(enemyAction());
         }
     }
 
@@ -124,17 +163,17 @@ public class EnemyPathFinding : MonoBehaviour {
             //StopAllCoroutines();
             StopCoroutine(coroutine);
             enemyState = EnemyState.idle;
-            coroutine = StartCoroutine(enemyMove());
+            coroutine = StartCoroutine(enemyAction());
         }
     }
 
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        //if(collision.gameObject.GetComponent<Rigidbody2D>()){
-        //    collision.gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+        if(collision.gameObject.GetComponent<Rigidbody2D>()){
+            collision.gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
 
-        //}
+        }
         //Debug.Log("!!!!!!!!!!!!!!!");
         //if (collision.transform.tag == "wall")
         //{
@@ -157,7 +196,10 @@ public class EnemyPathFinding : MonoBehaviour {
         //        ry = Random.Range(-1 * max, -1 * min);
         //    }
 
-        //    StartCoroutine(enemyMove(rx,ry));
+        //    StartCoroutine(enemyAction(rx,ry));
         //}
     }
+
+
+
 }

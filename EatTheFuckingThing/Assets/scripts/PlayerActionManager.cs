@@ -36,7 +36,7 @@ public class PlayerActionManager : MonoBehaviour {
     string playerSliderPath = @"PlayerSlider";
     Slider playerSlider;
 
-
+    public int hp = 100;
 
     private void Awake()
     {
