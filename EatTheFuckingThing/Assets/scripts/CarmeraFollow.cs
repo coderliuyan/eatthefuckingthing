@@ -17,5 +17,6 @@ public class CarmeraFollow : MonoBehaviour {
             transform.position = new Vector3(playerTranform.position.x, playerTranform.position.y, transform.position.z);
         }
 
+        transform.position = new Vector3(transform.position.x, playerTranform.position.y, transform.position.z);
     }
 }

@@ -97,7 +97,7 @@ public class PlayerActionManager : MonoBehaviour {
     IEnumerator ChangeScene(GameObject col){
         animationPanel.SetActive(true);
         playerSlider.enabled = false;
-        while(playerSlider.value != 1f)
+        while(playerSlider.value < 1f)
         {
             playerSlider.value += 0.1f;
             yield return new WaitForSeconds(0.1f);
@@ -107,7 +107,7 @@ public class PlayerActionManager : MonoBehaviour {
         playerSlider.value = 0;
         //yield return new WaitForSeconds(1.3f);
         animationPanel.SetActive(false);
-        string doorPath = col.name + "Pos";
+        string doorPath ="portal/" + col.name + "Pos";
         Transform tran = transform.parent.Find(doorPath);
         transform.position = tran.position;
     }
