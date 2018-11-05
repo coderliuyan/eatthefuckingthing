@@ -33,10 +33,14 @@ public class EnemyPathFinding : MonoBehaviour {
     [HideInInspector]
     public int enemyAttack = 10;
 
+    private GameObject skill;
+
 	// Use this for initialization
     void Start () {
         coroutine = StartCoroutine(enemyAction());
         playertrans = GameObject.FindWithTag("Player").transform;
+        skill = transform.Find("skill").gameObject;
+
     }
 
 
@@ -100,12 +104,19 @@ public class EnemyPathFinding : MonoBehaviour {
             case EnemyState.attack:
                 {
                     //开始攻击
-                    Debug.Log("开始攻击");
+                    //Debug.Log("开始攻击");
+
+                  
                     distance = Mathf.Abs((playertrans.position - transform.position).magnitude);
                     if (distance <= 70)
                     {
+                        skill.gameObject.SetActive(true);
+                        playertrans.GetComponent<Image>().color = Color.red;
+                        yield return new WaitForSeconds(0.2f);
+                        skill.gameObject.SetActive(false);
+                        playertrans.GetComponent<Image>().color = Color.white;
 
-                        if(PlayerActionManager.manager.hp >= enemyAttack)
+                        if (PlayerActionManager.manager.hp >= enemyAttack)
                         {
                             PlayerActionManager.manager.hp -= enemyAttack;
 
@@ -116,7 +127,7 @@ public class EnemyPathFinding : MonoBehaviour {
                         }
                     }
                     StatePanel.ChangeXuetiaoValue();
-                    Debug.Log("玩家血量为"  + PlayerActionManager.manager.hp);
+                    //Debug.Log("玩家血量为"  + PlayerActionManager.manager.hp);
                   
                     yield return new WaitForSeconds(1f);
                     enemyState = EnemyState.zhuiji;

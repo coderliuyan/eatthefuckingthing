@@ -9,17 +9,13 @@ public class SkillPanel : MonoBehaviour {
     Button normalBtn;
 	// Use this for initialization
 	void Start () {
-        init();
+        Init();
 	}
-	protected void init()
+	protected void Init()
     {
         normalBtn = transform.Find(normalBtnPath).GetComponent<Button>();
 
-        normalBtn.onClick.AddListener(delegate
-        {
-            PlayerActionManager.manager.Talk();
-
-        });
+        normalBtn.onClick.AddListener(PlayerActionManager.manager.ClickNormalButton);
     }
 
 	// Update is called once per frame
